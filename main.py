@@ -1,6 +1,3 @@
-"""
-WORKS !!
-"""
 import sys
 import os
 import traceback
@@ -13,24 +10,6 @@ from audio import Audio
 
 
 class WorkerSignals(QtCore.QObject):
-    '''
-    Defines the signals available from a running worker thread.
-
-    Supported signals are:
-
-    finished
-        No data
-
-    error
-        `tuple` (exctype, value, traceback.format_exc() )
-
-    result
-        `object` data returned from processing, anything
-
-    progress
-        `int` indicating % progress
-
-    '''
     finished = pyqtSignal()
     error = pyqtSignal(tuple)
     result = pyqtSignal(object)
@@ -38,18 +17,6 @@ class WorkerSignals(QtCore.QObject):
 
 
 class Worker(QtCore.QRunnable):
-    '''
-    Worker thread
-
-    Inherits from QRunnable to handler worker thread setup, signals and wrap-up.
-
-    :param callback: The function callback to run on this worker thread. Supplied args and
-                     kwargs will be passed through to the runner.
-    :type callback: function
-    :param args: Arguments to pass to the callback function
-    :param kwargs: Keywords to pass to the callback function
-
-    '''
 
     def __init__(self, fn, *args, **kwargs):
         super(Worker, self).__init__()
@@ -65,11 +32,7 @@ class Worker(QtCore.QRunnable):
 
     @pyqtSlot()
     def run(self):
-        '''
-        Initialise the runner function with passed args, kwargs.
-        '''
 
-        # Retrieve args/kwargs here; and fire processing using them
         try:
             result = self.fn(*self.args, **self.kwargs)
         except:
@@ -90,11 +53,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowTitle("Recorder")
 
         self.home_folder = os.path.dirname(os.path.realpath(__file__))
-        # if sys.platform.startswith("win"):
-        #     self.home_folder = "C:\\"
-        # else:
-        #     self.home_folder = "./"
-
         self.file_name = "output_test"
         self.path_to_file = os.path.join(self.home_folder, self.file_name + ".mp3")
 
@@ -157,30 +115,17 @@ class MainWindow(QtWidgets.QMainWindow):
         #
         close_action.triggered.connect(self.closeEvent)
         home_folder_action.triggered.connect(self.set_folder)
-        # settings_folder_action.triggered.connect(self.set_settings_folder)
 
         self.show()
 
         self.threadpool = QtCore.QThreadPool()
-        # print("Multithreading with maximum %d threads" % self.threadpool.maxThreadCount())
-
-        # QtWidgets.QMessageBox.about(self,
-        #                             "Reminder",
-        #                             "Remember to deactivate your microphone.")
-        #                             # QtWidgets.QMessageBox.Ok)
 
     def execute_recorder(self, progress_callback):
         self.audio.record_to_file()
 
-    # def thread_complete(self):
-    #     print("THREAD COMPLETE!")
-
     def record(self):
         # Pass the function to execute
         worker = Worker(self.execute_recorder)  # Any other args, kwargs are passed to the run function
-        # worker.signals.result.connect(self.print_output)
-        # worker.signals.finished.connect(self.thread_complete)
-        # worker.signals.progress.connect(self.progress_fn)
 
         # Execute
         self.threadpool.start(worker)
