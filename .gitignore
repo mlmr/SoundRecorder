@@ -1,0 +1,10 @@
+# Default ignored files
+data/
+workspace.xml
+__pycache__/*
+build/
+dist/
+venv/
+.idea/
+*.mp3
+venv_sr/
